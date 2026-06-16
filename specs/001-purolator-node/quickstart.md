@@ -22,7 +22,7 @@ pnpm lint               # n8n-node lint — strictness from n8n.strict:true (got
 pnpm test               # vitest unit tests for all transforms (written first — Principle 10)
 pnpm build              # n8n-node build
 npm pack --dry-run      # confirm tarball = LICENSE + README + dist only (gotchas §7)
-npx @n8n/scan-community-package @nodrel-dev/n8n-nodes-purolator   # MUST be zero errors (SC-002)
+npx @n8n/scan-community-package n8n-nodes-purolator   # MUST be zero errors (SC-002)
 ```
 
 CI (`.github/workflows/ci.yml`) runs `pnpm lint`, `pnpm test`, and `pnpm build` on every PR and

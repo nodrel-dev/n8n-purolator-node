@@ -8,7 +8,7 @@
 #
 # ─── WHY THIS FILE IS CALLED publish.yml ───────────────────────────────────────
 # npm OIDC Trusted Publishing is configured against this exact workflow FILENAME
-# (@nodrel-dev/n8n-nodes-purolator → Settings → Trusted Publisher → publish.yml).
+# (n8n-nodes-purolator → Settings → Trusted Publisher → publish.yml).
 # The publish job must live here for OIDC to authenticate, so the filename is kept
 # even though the workflow also runs release-please. No NPM_TOKEN secret is used.
 #

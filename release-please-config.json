@@ -7,7 +7,7 @@
   "packages": {
     ".": {
       "release-type": "node",
-      "package-name": "@nodrel-dev/n8n-nodes-purolator",
+      "package-name": "n8n-nodes-purolator",
       "changelog-path": "CHANGELOG.md"
     }
   }
