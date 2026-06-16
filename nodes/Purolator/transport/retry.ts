@@ -100,11 +100,12 @@ export async function withRetry<T>(
 				// eslint-disable-next-line @n8n/community-nodes/require-node-api-error
 				throw error;
 			}
-			const delay = extractRetryAfterMs(error) ?? computeBackoffMs(attempt, cfg.baseDelayMs, cfg.jitter());
+			const delay =
+				extractRetryAfterMs(error) ?? computeBackoffMs(attempt, cfg.baseDelayMs, cfg.jitter());
 			await cfg.sleep(delay);
 		}
 	}
 	// Unreachable in practice (the loop throws on its final attempt); satisfies control flow.
-	 
+
 	throw lastError;
 }

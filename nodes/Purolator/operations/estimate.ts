@@ -2,7 +2,11 @@ import type { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import { resolveAccountNumber } from '../transforms/accountNumber';
 import { toEstimateAddress, type Address } from '../transforms/address';
 import { extractEstimateServices } from '../transforms/estimateResponse';
-import { buildOptionPairs, type AdditionalOption, type CuratedOptions } from '../transforms/options';
+import {
+	buildOptionPairs,
+	type AdditionalOption,
+	type CuratedOptions,
+} from '../transforms/options';
 import { assertSenderCanada, validatePackage } from '../transforms/packageValidation';
 import { splitResults } from '../transforms/splitResults';
 import { getBaseUrl, purolatorRequest } from '../transport/request';
@@ -62,7 +66,10 @@ export async function executeEstimate(
 		'showAlternativeServices',
 		itemIndex,
 	) as boolean;
-	const displayPublishedRates = this.getNodeParameter('displayPublishedRates', itemIndex) as boolean;
+	const displayPublishedRates = this.getNodeParameter(
+		'displayPublishedRates',
+		itemIndex,
+	) as boolean;
 	const shipmentDate = (this.getNodeParameter('shipmentDate', itemIndex, '') as string).trim();
 
 	const shipmentInformation: IDataObject = {
@@ -96,7 +103,9 @@ export async function executeEstimate(
 	};
 
 	const language = this.getNodeParameter('language', itemIndex, 'en') as string;
-	const requestReference = (this.getNodeParameter('requestReference', itemIndex, '') as string).trim();
+	const requestReference = (
+		this.getNodeParameter('requestReference', itemIndex, '') as string
+	).trim();
 	const headers: Record<string, string> = { Language: language === 'fr' ? 'FR' : 'EN' };
 	if (requestReference) {
 		headers.RequestReference = requestReference;
