@@ -1,0 +1,5 @@
+# Single programmatic node, not declarative routing
+
+Constitution Principle 5 prefers the declarative (routing-based) node style and requires programmatic style to be justified. We chose a **single programmatic node** for all v1 operations because three cross-cutting requirements collectively exceed what declarative routing can express: FR-X-003's retry policy (exponential backoff honoring `Retry-After`, vs n8n's fixed-interval `retryOnFail`), FR-X-009's conditional Split Results toggle, and Track's batched-array request with per-PIN result and error isolation under `continueOnFail`. Estimate, Pickup, and Locator are declarative-friendly on their own, but Track (a P2 core operation) is not, and a mixed-style node is worse than a consistent one.
+
+Auth still lives at the credential level (see ADR-0001); the programmatic node calls `httpRequestWithAuthentication` and never gates credential selection on `operation`. Because the node is single-credential (FR-AUTH-007), the Principle 11 `authentication`-param tool-path hazard does not apply. A shared request helper owns retry/backoff, result splitting, status normalization, and carrier fault-code surfacing.
