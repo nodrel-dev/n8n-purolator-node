@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-purolator",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "n8n community node for the Purolator REST API — estimate rates, track shipments, schedule pickups, and find service points directly against your own Purolator account.",
 	"license": "MIT",
 	"homepage": "https://github.com/nodrel-dev/n8n-purolator-node#readme",
