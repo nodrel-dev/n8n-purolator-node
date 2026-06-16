@@ -1,0 +1,5 @@
+# Error vs result: mirror the carrier
+
+The node classifies an operation's outcome by **what Purolator returned**, not by whether the outcome is "negative." A carrier error response (4xx/5xx, auth failure, validation rejection, malformed input) surfaces as an n8n error — thrown, or a structured error item under `continueOnFail`, carrying the carrier fault code and message with secrets stripped. A carrier 200 response with a negative payload surfaces as a normal **success item**: a not-found PIN in a batch is an item with `found: false`, and empty Estimate services / Service Point locations / pickup history are empty arrays — never an n8n error.
+
+This resolves a contradiction in the spec (FR-X-009 said a "failed" batch entry must be an error, while acceptance scenario US2.3 said a not-found PIN is a "result, without failing the batch"). The mirror-the-carrier rule makes both consistent: not-found is a carrier 200, hence a result; an unserviceable lane is a carrier error response, hence an n8n error. It is recorded because a future reader would otherwise "fix" not-found PINs into error items, breaking Track's per-PIN batch isolation. See FR-X-010.
