@@ -51,4 +51,3 @@ These pure transforms are the tested core; tests precede implementation:
 `address` (canonical → per-endpoint), `statusMap`, `options` (curated + generic → option pairs),
 `packageValidation`, `accountNumber` resolution, `splitResults`, `classifyError`,
 `retry`/backoff. Carrier business rules are NOT re-implemented or tested (FR-X-011).
-</content>

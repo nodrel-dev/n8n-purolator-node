@@ -42,4 +42,3 @@ A single custom n8n credential type covering all v1 APIs (FR-AUTH-001/007, ADR-0
 ## Secret hygiene (Principle 6, FR-X-004)
 
 - No secret in logs, error messages, or URLs. Real secrets live only in gitignored `.env.local` / `.env.json`. Any leaked secret is **rotated** in the portal, not merely redacted.
-</content>

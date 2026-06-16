@@ -1,0 +1,98 @@
+# Release automation for this n8n community node.
+#
+# release-please drives semantic versioning from Conventional Commit messages
+# (feat / fix / feat!: …): on every push to main it maintains a "release PR" that
+# bumps the version in package.json and updates CHANGELOG.md. Merging that PR makes
+# release-please create the git tag and GitHub Release, and the publish job below
+# then ships to npm — all in this one workflow run.
+#
+# ─── WHY THIS FILE IS CALLED publish.yml ───────────────────────────────────────
+# npm OIDC Trusted Publishing is configured against this exact workflow FILENAME
+# (@nodrel-dev/n8n-nodes-purolator → Settings → Trusted Publisher → publish.yml).
+# The publish job must live here for OIDC to authenticate, so the filename is kept
+# even though the workflow also runs release-please. No NPM_TOKEN secret is used.
+#
+# ─── VERSIONING ────────────────────────────────────────────────────────────────
+# Pre-1.0 (configured in release-please-config.json):
+#   fix:                      → patch  (0.1.0 → 0.1.1)
+#   feat:                     → patch  (bump-patch-for-minor-pre-major)
+#   feat!: / BREAKING CHANGE  → minor  (0.1.0 → 0.2.0, bump-minor-pre-major)
+# Manual bumping is not needed — let the commit messages drive it.
+#
+# ─── FIRST RELEASE ─────────────────────────────────────────────────────────────
+# The manifest is seeded at 0.1.0. To publish the very first 0.1.0 (which
+# release-please treats as already released), use the workflow_dispatch escape
+# hatch below once package.json exists with version 0.1.0.
+
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  release-please:
+    name: Release PR / tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  publish:
+    name: Publish to npm
+    needs: release-please
+    # Runs when release-please cuts a new release, OR on a manual workflow_dispatch.
+    # The manual path is a retry escape hatch: if a publish fails after the tag +
+    # GitHub Release already exist (release-please won't re-emit them), dispatch
+    # this workflow to publish the version currently in package.json.
+    if: ${{ needs.release-please.outputs.release_created == 'true' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+
+    permissions:
+      # Mint an OIDC token for npm provenance + Trusted Publishing.
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v6
+
+      # pnpm-only project (no package-lock.json).
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 'lts/*'
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org/'
+
+      # OIDC Trusted Publishing requires npm >= 11.5.1; the LTS image ships npm 10.x.
+      - name: Upgrade npm for provenance/OIDC support
+        run: npm install -g npm@latest
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # `n8n-node release` is the only supported publish path: the package's
+      # prepublishOnly hook (`n8n-node prerelease`) hard-exits unless RELEASE_MODE
+      # is set, and only `release` sets it. In CI it auto-detects GitHub Actions
+      # and runs lint + build, then `npm publish` with RELEASE_MODE=true and
+      # NPM_CONFIG_PROVENANCE=true. Authenticates via the workflow's OIDC identity
+      # (Trusted Publishing) — no NPM_TOKEN — and signs provenance automatically.
+      # Publishes the version release-please already bumped in package.json.
+      - name: Publish to npm
+        run: pnpm run release

@@ -183,4 +183,3 @@ Results ordered ascending by distance (carrier). Extra headers `x-origin-verify`
 - **Normalized Tracking status (additive-only, ADR-0003)**: `Created, InTransit, OutForDelivery, AttemptedDelivery, Delivered, HeldForPickup, Exception, ReturnToSender, Cancelled, Unknown`.
 - **Pickup status (fixed)**: `Scheduled, Dispatched, Cancelled, NoPickup, PickedUp, Pending`.
 - **Pickup destinationCode**: `DOM, USA, INTL`. **Mode of transport**: `Air, Ground, Air/Ground`.
-</content>

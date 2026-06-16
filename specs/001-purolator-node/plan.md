@@ -29,7 +29,7 @@ operation is exercised on both the normal and AI-Agent tool-execution paths (Pri
 
 **Storage**: N/A (stateless node; the only ephemeral state is the cached Bearer token held by n8n's credential layer between requests within an execution).
 
-**Testing**: Unit tests for all transforms (status mapping, address mapping, option-pair assembly, package/dimension validation, account-number resolution, retry/backoff, split-results) — **test-first per Principle 10**. Integration verification through a Docker n8n container with the package installed, run headlessly via `n8n execute --id <id>` (gotchas §9), exercising both the normal and AI-Agent tool paths (Principle 11 / SC-007).
+**Testing**: Unit tests via **vitest** for all transforms (status mapping, address mapping, option-pair assembly, package/dimension validation, account-number resolution, retry/backoff, split-results) — **test-first per Principle 10**; `pnpm test` runs in CI. Integration verification through a Docker n8n container with the package installed, run headlessly via `n8n execute --id <id>` (gotchas §9), exercising both the normal and AI-Agent tool paths (Principle 11 / SC-007).
 
 **Target Platform**: n8n (self-hosted and cloud) as a verified community node; runs on the n8n Node.js runtime.
 
@@ -37,7 +37,7 @@ operation is exercised on both the normal and AI-Agent tool-execution paths (Pri
 
 **Performance Goals**: No throughput SLO (carrier-bound, per-execution). Behavioural targets: bounded retry = ≤3 total attempts with ~1s-base jittered exponential backoff honoring `Retry-After` (FR-X-003); token reused within an execution and refreshed only on 401 (ADR-0001).
 
-**Constraints**: Must pass `npx @n8n/scan-community-package n8n-nodes-purolator` with zero errors (SC-002, Principle 3). Zero runtime deps (SC-003, Principle 2). English-only UI/docs (Principle 4). No secret in any log/error/URL (FR-X-004, Principle 6). `usableAsTool: true` with identical behaviour on both execution paths (Principle 11). TypeScript `incremental` OFF (no `tsBuildInfoFile` — gotchas §7). Published via `n8n-node release` + npm OIDC Trusted Publishing with provenance (Principle 9, gotchas §7).
+**Constraints**: Must pass `npx @n8n/scan-community-package @nodrel-dev/n8n-nodes-purolator` with zero errors (SC-002, Principle 3). Zero runtime deps (SC-003, Principle 2). English-only UI/docs (Principle 4). No secret in any log/error/URL (FR-X-004, Principle 6). `usableAsTool: true` with identical behaviour on both execution paths (Principle 11). TypeScript `incremental` OFF (no `tsBuildInfoFile` — gotchas §7). pnpm-only toolchain. Versioning automated by **release-please** from Conventional Commits (pre-1.0: fix/feat→patch, feat!/BREAKING→minor); published via `n8n-node release` + npm OIDC Trusted Publishing with provenance from `.github/workflows/publish.yml` (Principle 9, gotchas §7). CI/CD mirrors the n8n-nodes-fedex setup.
 
 **Scale/Scope**: v1 = 4 user-facing resources / 7 operations (Estimate; Track; Pickup ×4; Service Point) against 5 live REST APIs sharing one OAuth credential + one `X-Api-Key`. Courier `lineOfBusiness` only; Freight and the Shipping / Service-Availability APIs are deferred to v1.1.
 
@@ -126,9 +126,20 @@ n8n-nodes-purolator/
 │           ├── request.ts                 # httpRequestWithAuthentication wrapper
 │           └── retry.ts                   # bounded jittered backoff + Retry-After (FR-X-003)
 ├── test/                                  # unit tests mirroring transforms/ (test-first)
-├── .github/workflows/release.yml          # npm OIDC Trusted Publishing + provenance (Principle 9)
-├── package.json                           # n8n.strict: true; incremental OFF; zero runtime deps; prepublishOnly guard
+├── .github/
+│   ├── workflows/
+│   │   ├── ci.yml                         # pnpm install + lint + test + build on PR/push (parity w/ FedEx)
+│   │   └── publish.yml                    # release-please (semver from Conventional Commits) → npm OIDC Trusted Publishing + provenance (Principle 9). Filename pinned by npm Trusted Publisher config.
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   └── ISSUE_TEMPLATE/{config,bug_report,feature_request}.yml
+├── release-please-config.json             # pre-1.0 semver: fix/feat→patch, feat!/BREAKING→minor
+├── .release-please-manifest.json          # version source of truth (seeded 0.1.0)
+├── CHANGELOG.md                           # maintained by release-please (do not hand-edit)
+├── CONTRIBUTING.md  SECURITY.md  CODE_OF_CONDUCT.md   # community-health docs
+├── pnpm-workspace.yaml                    # pnpm allowBuilds (eslint-plugin-n8n-nodes-base, isolated-vm, unrs-resolver)
+├── package.json                           # pnpm-only; n8n.strict: true; incremental OFF; zero runtime deps; scripts build/lint/test/release/prepublishOnly; version 0.1.0
 ├── tsconfig.json                          # incremental: false (no tsBuildInfoFile — gotchas §7)
+├── vitest.config.mts                      # unit test runner config
 ├── README.md                              # ≥1 example per operation (SC-004), field-name mapping note
 └── LICENSE
 ```
@@ -142,5 +153,4 @@ n8n-nodes-purolator/
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|--------------------------------------|
 | **Programmatic node style** instead of the preferred declarative routing (Principle 5) | Three cross-cutting requirements collectively exceed declarative routing: FR-X-003 retry (exponential backoff honoring `Retry-After`, vs n8n's fixed-interval `retryOnFail`); FR-X-009 conditional Split Results toggle; Track's batched-array request needing per-PIN result/error isolation under `continueOnFail`. See ADR-0002. | **Declarative routing**: cannot express custom backoff, conditional output shaping, or per-element batch error isolation. **Mixed style** (declarative for Estimate/Pickup/Locator, programmatic for Track): a single consistent programmatic node is more maintainable than a split-style node and avoids two error-handling code paths; ADR-0002. Auth stays at credential level, single-credential ⇒ no Principle 11 `authentication`-param hazard. |
-</content>
 </invoke>

@@ -35,13 +35,13 @@ unit tests in `test/`.
 **Purpose**: Scaffold the verified-node package skeleton and toolchain (research R11).
 
 - [ ] T001 Scaffold the package with `n8n-node new` (declarative→programmatic conversion as needed) producing `credentials/` + `nodes/Purolator/` skeleton at repo root, package name `n8n-nodes-purolator`
-- [ ] T002 Configure `package.json`: zero runtime `dependencies` (Principle 2), `n8n.strict: true` (gotchas §5), `engines.node >= 22.22` (gotchas §5), `prepublishOnly` guard (gotchas §7), n8n node/credential registration block pointing at the node + `PurolatorApi` credential
+- [ ] T002 Configure `package.json` (pnpm-only, version `0.1.0`, name `@nodrel-dev/n8n-nodes-purolator`): zero runtime `dependencies` (Principle 2), `n8n.strict: true` (gotchas §5), `engines.node >= 22.22` (gotchas §5), scripts `build`/`lint`/`test`(vitest)/`release`(`n8n-node release`)/`prepublishOnly`(`n8n-node prerelease`) guard (gotchas §7), n8n node/credential registration block pointing at the node + `PurolatorApi` credential — must match the already-committed `release-please-config.json`/`.release-please-manifest.json`
 - [ ] T003 [P] Configure `tsconfig.json` with `incremental: false` / no `tsBuildInfoFile`, target ES2022 (gotchas §7)
-- [ ] T004 [P] Wire linting via `n8n-node lint` and confirm `npx @n8n/scan-community-package` runs (SC-002, Principle 3)
-- [ ] T005 [P] Set up the unit test runner and `npm test` script with a `test/` directory (Principle 10)
+- [ ] T004 [P] Wire linting via `n8n-node lint` and confirm `npx @n8n/scan-community-package @nodrel-dev/n8n-nodes-purolator` runs (SC-002, Principle 3)
+- [ ] T005 [P] Add `vitest.config.mts` + `pnpm test` script with a `test/` directory (Principle 10)
 - [ ] T006 [P] Add node icon `nodes/Purolator/purolator.svg`
 - [ ] T007 [P] Create `README.md` skeleton with sections for each operation and the Address field-name mapping note (SC-004, ADR-0005)
-- [ ] T008 [P] Add `.github/workflows/release.yml` for `n8n-node release` via npm OIDC Trusted Publishing (`id-token: write`, npm >= 11.5.1) with provenance (Principle 9, gotchas §7)
+- [ ] T008 [P] CI/CD is already committed (`.github/workflows/ci.yml` lint+test+build; `.github/workflows/publish.yml` release-please→npm OIDC Trusted Publishing w/ provenance; `release-please-config.json`; `.release-please-manifest.json`; `pnpm-workspace.yaml`). Verify it goes green once T001/T002 scaffold `package.json` + `pnpm-lock.yaml`, and register the npm Trusted Publisher against the `publish.yml` filename (Principle 9, gotchas §7)
 
 ---
 
@@ -189,11 +189,11 @@ distance; capability filters (holdForPickup/dangerousGoods/kiosk) → only match
 
 - [ ] T049 [P] Add ≥1 worked README example per operation incl. the Address field-name mapping note (SC-004, ADR-0005)
 - [ ] T050 [P] Document the open live-verification items (VL-1 Estimate off-lane anchor, VL-2 Track max PINs, VL-3 Locator headers) and the data-plane authorizer blocker in README/CONTEXT as a pre-publish gate (Principle 12)
-- [ ] T051 Run `npx @n8n/scan-community-package n8n-nodes-purolator` and resolve to zero errors (SC-002, Principle 3)
+- [ ] T051 Run `npx @n8n/scan-community-package @nodrel-dev/n8n-nodes-purolator` and resolve to zero errors (SC-002, Principle 3)
 - [ ] T052 Run `npm pack --dry-run` and confirm the tarball is LICENSE + README + dist only (gotchas §7, SC-003)
 - [ ] T053 Run the full quickstart.md validation (all 5 scenarios, both execution paths) in the Docker harness (SC-001/005/007)
 - [ ] T054 Close VL-1/VL-2/VL-3 with Purolator developer support against the live data-plane, then flip documented-default behaviours if confirmation differs (Principle 12 — hard pre-publish gate)
-- [ ] T055 Publish via `n8n-node release` + GitHub Actions OIDC with provenance and submit for n8n verification (SC-006, Principle 9)
+- [ ] T055 Cut the first release: register the npm Trusted Publisher against `publish.yml`, then either let release-please's release PR drive the tag or use the `workflow_dispatch` escape hatch for the initial `0.1.0`; publish ships via OIDC with provenance. Submit for n8n verification (SC-006, Principle 9)
 
 ---
 
@@ -267,4 +267,3 @@ Each story tested independently and adds value without breaking prior stories. T
 - Verify each transform test fails before implementing (Principle 10).
 - Data-plane live calls are currently blocked by a carrier authorizer bug; use contract mocks for harness runs until T054 clears it. The token path is confirmed live.
 - Commit after each task or logical group; never log/echo/URL-embed secrets (Principle 6, FR-X-004).
-</content>

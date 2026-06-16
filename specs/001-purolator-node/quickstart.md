@@ -9,20 +9,24 @@ detail in [plan.md](./plan.md), [data-model.md](./data-model.md), and [contracts
 ## Prerequisites
 
 - Node.js **>= 22.22** (22.16 is rejected — gotchas §5).
-- npm **>= 11.5.1** (for OIDC Trusted Publishing).
+- **pnpm** (npm installs are blocked via `only-allow`); npm **>= 11.5.1** is used in CI for OIDC Trusted Publishing.
 - Docker (for the verification harness).
 - A Purolator API app: `client_id`, `client_secret`, `X-Api-Key`. Secrets in a gitignored `.env.local` / `.env.json` only (Principle 6). Default environment = **sandbox**.
 
 ## Build & dev
 
 ```bash
-# scaffold (already-decided layout) and develop
-n8n-node dev            # live-reload; node appears as CUSTOM.purolator (gotchas §4)
-n8n-node lint           # strictness from n8n.strict:true in package.json (gotchas §5)
-npm test                # unit tests for all transforms (must be written first — Principle 10)
+pnpm install
+pnpm dev                # n8n-node dev — live-reload; node appears as CUSTOM.purolator (gotchas §4)
+pnpm lint               # n8n-node lint — strictness from n8n.strict:true (gotchas §5)
+pnpm test               # vitest unit tests for all transforms (written first — Principle 10)
+pnpm build              # n8n-node build
 npm pack --dry-run      # confirm tarball = LICENSE + README + dist only (gotchas §7)
-npx @n8n/scan-community-package n8n-nodes-purolator   # MUST be zero errors (SC-002)
+npx @n8n/scan-community-package @nodrel-dev/n8n-nodes-purolator   # MUST be zero errors (SC-002)
 ```
+
+CI (`.github/workflows/ci.yml`) runs `pnpm lint`, `pnpm test`, and `pnpm build` on every PR and
+push to `main`.
 
 > Keep TypeScript `incremental` OFF — a stale `tsBuildInfoFile` survives `rimraf dist` and produces an incomplete `dist` that fails at load (gotchas §7).
 
@@ -63,13 +67,21 @@ support and **must be closed before npm publish / verification submission**. See
 
 ## Release (Principle 9, gotchas §7)
 
-```bash
-n8n-node release        # never raw npm publish (prepublishOnly guard exits 1)
-```
+Versioning is automated by **release-please** from Conventional Commits — do not hand-edit
+`package.json` `version` or `CHANGELOG.md`. Pre-1.0: `fix:`/`feat:` → patch, `feat!:`/`BREAKING
+CHANGE:` → minor (configured in `release-please-config.json`).
 
-Publish via GitHub Actions with npm OIDC Trusted Publishing (`id-token: write`) and provenance.
-A `404 PUT` on the scoped package = the publish ran unauthenticated; first-publish CDN
-propagation can lag ~5 min.
+1. Merge `feat:`/`fix:` commits to `main`.
+2. release-please opens/updates a **release PR** bumping the version + CHANGELOG.
+3. Merging that PR creates the git tag + GitHub Release, and `.github/workflows/publish.yml`
+   runs `pnpm run release` (`n8n-node release`) to publish to npm with provenance via OIDC
+   Trusted Publishing — no `NPM_TOKEN`. The npm Trusted Publisher must be registered against the
+   `publish.yml` filename.
+
+`n8n-node release` is the only supported publish path (the `prepublishOnly` guard exits 1
+otherwise). A `404 PUT` on the scoped package = the publish ran unauthenticated; first-publish CDN
+propagation can lag ~5 min. For the initial `0.1.0` (which release-please treats as already
+released at the seeded manifest), use the `workflow_dispatch` escape hatch on the Release workflow.
 
 ## Success criteria checklist
 
@@ -80,4 +92,3 @@ propagation can lag ~5 min.
 - [ ] SC-005 invalid creds + unserviceable lane → clear errors, no secret leak
 - [ ] SC-006 builds, publishes via GH Actions with provenance, accepted for verification
 - [ ] SC-007 every operation verified on normal **and** AI-Agent tool paths in Docker harness
-</content>

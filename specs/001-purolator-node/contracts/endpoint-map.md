@@ -35,4 +35,3 @@ is handled by the credential layer (re-run `preAuthentication`), separate from t
 
 - Token endpoint: ✅ CONFIRMED LIVE (200, `scope: portal_api_sandbox`).
 - Data-plane (Estimate/Track/Locator/Pickup): ⛔ BLOCKED — HTTP 500 `AuthorizerConfigurationException` (carrier authorizer bug). Endpoints coded to mapped OpenAPI contracts; live confirmation (VL-1..3) required before publish.
-</content>
