@@ -2,11 +2,7 @@ import type { INodeProperties } from 'n8n-workflow';
 
 const showForEstimate = { resource: ['estimate'] };
 
-function addressCollection(
-	name: string,
-	displayName: string,
-	hint: string,
-): INodeProperties {
+function addressCollection(name: string, displayName: string, hint: string): INodeProperties {
 	return {
 		displayName,
 		name,
@@ -20,10 +16,29 @@ function addressCollection(
 				name: 'value',
 				displayName: 'Address',
 				values: [
-					{ displayName: 'Street', name: 'street', type: 'string', default: '', description: 'Street address (one line per row, max 3 lines)' },
+					{
+						displayName: 'Street',
+						name: 'street',
+						type: 'string',
+						default: '',
+						description: 'Street address (one line per row, max 3 lines)',
+					},
 					{ displayName: 'City', name: 'city', type: 'string', default: '' },
-					{ displayName: 'Province / State Code', name: 'province', type: 'string', default: '', description: 'Province or state code, e.g. ON. Required for CA/US; omit for international receivers.' },
-					{ displayName: 'Country', name: 'country', type: 'string', default: '', description: 'ISO 2-letter country code. Sender must be CA.' },
+					{
+						displayName: 'Province / State Code',
+						name: 'province',
+						type: 'string',
+						default: '',
+						description:
+							'Province or state code, e.g. ON. Required for CA/US; omit for international receivers.',
+					},
+					{
+						displayName: 'Country',
+						name: 'country',
+						type: 'string',
+						default: '',
+						description: 'ISO 2-letter country code. Sender must be CA.',
+					},
 					{ displayName: 'Postal / ZIP Code', name: 'postalCode', type: 'string', default: '' },
 					{ displayName: 'Company Name', name: 'companyName', type: 'string', default: '' },
 				],
@@ -124,7 +139,8 @@ export const estimateDescription: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		displayOptions: { show: showForEstimate },
-		description: 'Billing account number. Falls back to the credential default account number when blank.',
+		description:
+			'Billing account number. Falls back to the credential default account number when blank.',
 	},
 
 	{
@@ -135,16 +151,41 @@ export const estimateDescription: INodeProperties[] = [
 		default: {},
 		placeholder: 'Add Piece',
 		displayOptions: { show: showForEstimate },
-		description: 'Optional per-piece detail. Weight is required on each piece; L/W/H are all-or-none.',
+		description:
+			'Optional per-piece detail. Weight is required on each piece; L/W/H are all-or-none.',
 		options: [
 			{
 				name: 'piece',
 				displayName: 'Piece',
 				values: [
-					{ displayName: 'Weight', name: 'weight', type: 'number', default: 0, typeOptions: { minValue: 0 } },
-					{ displayName: 'Length', name: 'length', type: 'number', default: 0, typeOptions: { minValue: 0 } },
-					{ displayName: 'Width', name: 'width', type: 'number', default: 0, typeOptions: { minValue: 0 } },
-					{ displayName: 'Height', name: 'height', type: 'number', default: 0, typeOptions: { minValue: 0 } },
+					{
+						displayName: 'Weight',
+						name: 'weight',
+						type: 'number',
+						default: 0,
+						typeOptions: { minValue: 0 },
+					},
+					{
+						displayName: 'Length',
+						name: 'length',
+						type: 'number',
+						default: 0,
+						typeOptions: { minValue: 0 },
+					},
+					{
+						displayName: 'Width',
+						name: 'width',
+						type: 'number',
+						default: 0,
+						typeOptions: { minValue: 0 },
+					},
+					{
+						displayName: 'Height',
+						name: 'height',
+						type: 'number',
+						default: 0,
+						typeOptions: { minValue: 0 },
+					},
 				],
 			},
 		],
@@ -159,7 +200,12 @@ export const estimateDescription: INodeProperties[] = [
 		displayOptions: { show: showForEstimate },
 		description: 'High-frequency shipment options',
 		options: [
-			{ displayName: 'Adult Signature Required', name: 'adultSignatureRequired', type: 'boolean', default: false },
+			{
+				displayName: 'Adult Signature Required',
+				name: 'adultSignatureRequired',
+				type: 'boolean',
+				default: false,
+			},
 			{ displayName: 'Dangerous Goods', name: 'dangerousGoods', type: 'boolean', default: false },
 			{
 				displayName: 'Dangerous Goods Class',
@@ -186,9 +232,20 @@ export const estimateDescription: INodeProperties[] = [
 					{ name: 'Ground', value: 'Ground' },
 				],
 			},
-			{ displayName: 'Declared Value', name: 'declaredValue', type: 'number', default: 0, typeOptions: { minValue: 0 } },
+			{
+				displayName: 'Declared Value',
+				name: 'declaredValue',
+				type: 'number',
+				default: 0,
+				typeOptions: { minValue: 0 },
+			},
 			{ displayName: 'Hold For Pickup', name: 'holdForPickup', type: 'boolean', default: false },
-			{ displayName: 'Residential Signature (Domestic)', name: 'residentialSignatureDomestic', type: 'boolean', default: false },
+			{
+				displayName: 'Residential Signature (Domestic)',
+				name: 'residentialSignatureDomestic',
+				type: 'boolean',
+				default: false,
+			},
 		],
 	},
 
@@ -207,7 +264,13 @@ export const estimateDescription: INodeProperties[] = [
 				displayName: 'Option',
 				values: [
 					{ displayName: 'Option ID', name: 'optionId', type: 'string', default: '' },
-					{ displayName: 'Option ID Value', name: 'optionIdValue', type: 'string', default: '', description: 'Defaults to "true" when blank' },
+					{
+						displayName: 'Option ID Value',
+						name: 'optionIdValue',
+						type: 'string',
+						default: '',
+						description: 'Defaults to "true" when blank',
+					},
 				],
 			},
 		],
@@ -231,7 +294,8 @@ export const estimateDescription: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		displayOptions: { show: showForEstimate },
-		description: 'Optional client reference echoed back by the carrier (sent as the RequestReference header)',
+		description:
+			'Optional client reference echoed back by the carrier (sent as the RequestReference header)',
 	},
 	{
 		displayName: 'Split Results',
